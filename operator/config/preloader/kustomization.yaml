@@ -1,0 +1,11 @@
+resources:
+- preloader.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+images:
+- name: preloader
+  newName: gcr.io/shopify-docker-images/cloud/production/kubectl-trace-init
+  newTag: latest
+- name: tracerunner
+  newName: gcr.io/shopify-docker-images/cloud/production/kubectl-trace-runner
+  newTag: latest

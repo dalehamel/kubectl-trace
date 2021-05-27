@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: controller-manager
+  namespace: system
+  labels:
+    app: kubectl-trace-operator
+spec:
+  selector:
+    matchLabels:
+      app: kubectl-trace-operator
+  replicas: 1
+  template:
+    metadata:
+      name: kubectl-trace-operator
+      labels:
+        app: kubectl-trace-operator
+      annotations:
+        ad.datadoghq.com/tracejob-operator.check_names: '["openmetrics"]'
+        ad.datadoghq.com/tracejob-operator.init_configs: '[{}]'
+        ad.datadoghq.com/tracejob-operator.tags: '{}'
+        ad.datadoghq.com/tracejob-operator.instances: '[{"prometheus_url": "http://%%host%%:8080/metrics","namespace": "tracejob_operator", "metrics": ["*"], "send_distribution_buckets": true, "send_histogram_buckets": true }]'
+    spec:
+      serviceAccountName: manager
+      containers:
+      - name: tracejob-operator
+        command:
+        - /kubectl-trace-controller
+        args:
+        - "--enable-leader-election"
+        image: controller:latest
+        resources:
+          limits:
+            cpu: 100m
+            memory: 30Mi
+          requests:
+            cpu: 100m
+            memory: 20Mi
+        ports:
+        - containerPort: 8080
+          name: metrics
+      terminationGracePeriodSeconds: 10

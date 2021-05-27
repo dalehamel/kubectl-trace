@@ -1,0 +1,25 @@
+# permissions for end users to edit tracejobgcs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: tracejobgc-editor-role
+  namespace: kubectl-trace-tracejobs
+rules:
+- apiGroups:
+  - trace.iovisor.org
+  resources:
+  - tracejobgcs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - trace.iovisor.org
+  resources:
+  - tracejobgcs/status
+  verbs:
+  - get

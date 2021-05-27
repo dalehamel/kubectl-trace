@@ -1,0 +1,85 @@
+---
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: preloader
+  labels:
+    app: kubectl-trace-preloader
+spec:
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 100%
+  selector:
+    matchLabels:
+      app: kubectl-trace-preloader
+  template:
+    metadata:
+      labels:
+        app: kubectl-trace-preloader
+    spec:
+      tolerations:
+      - operator: Exists # Matches everything, so the preloader will ignore all taints
+      volumes:
+      - name: host-os-release
+        hostPath:
+          path: /etc/os-release
+      - name: kernel-headers-usr-src
+        hostPath:
+          path: /var/cache/linux-headers/generated
+      - name: kernel-headers-modules-dir
+        hostPath:
+          path: /var/cache/linux-headers/modules_dir
+      - name: host-modules
+        hostPath:
+          path: /lib/modules
+      - name: host-etc-lsb
+        hostPath:
+          path: /etc/lsb-release
+      - name: host-etc-os
+        hostPath:
+          path: /etc/os-release
+      initContainers:
+      # This container is used to pull in and cache linux headers on the host
+      # This is done in a semi-standard way, so that other users of eBPF can
+      # benefit from these cached headers if they adhere to the standard.
+      # Systems with BTF or IKHEADERS can omit this, but it is here for compatibility
+      - name: fetch-kernel-headers
+        image: preloader:latest
+        imagePullPolicy: Always
+        command: ["/fetch-linux-headers.sh"]
+        volumeMounts:
+        - name: kernel-headers-modules-dir
+          mountPath: "/lib/modules"
+        - name: kernel-headers-usr-src
+          mountPath: "/usr/src"
+        - name: host-etc-lsb
+          mountPath: /etc/lsb-release.host
+        - name: host-etc-os
+          mountPath: /etc/os-release.host
+        - name: host-modules
+          mountPath: /lib/modules.host
+        resources: # FIXME should this be removed for greater flexibility?
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 1
+            memory: 1024Mi
+      containers:
+      # This runs entirely to ensure that the kubectl-trace-runner image is available on all nodes
+      - name: kubectl-trace-runner-preloader
+        image: tracerunner:latest
+        imagePullPolicy: Always
+        command:
+        - /usr/bin/tail
+        args:
+        - -f
+        - /dev/null
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 1
+            memory: 256Mi

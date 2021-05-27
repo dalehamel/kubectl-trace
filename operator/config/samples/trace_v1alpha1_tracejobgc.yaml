@@ -1,0 +1,10 @@
+apiVersion: trace.iovisor.org/v1alpha1
+kind: TraceJobGC
+metadata:
+  name: tracejobgc-sample
+spec:
+  # Add fields here
+  completedTTL: 10
+  failedTTL: 10
+  invalidTTL: 10
+  frequency: 10

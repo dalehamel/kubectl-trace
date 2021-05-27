@@ -1,0 +1,8 @@
+resources:
+- manager.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+images:
+- name: controller
+  newName: gcr.io/shopify-docker-images/cloud/production/kubectl-trace-operator
+  newTag: latest

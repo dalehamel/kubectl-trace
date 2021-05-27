@@ -1,0 +1,12 @@
+apiVersion: trace.iovisor.org/v1alpha1
+kind: TraceJobGC
+metadata:
+  name: default-gc
+  labels:
+    app: kubectl-trace-operator-gc
+spec:
+  # 604800 seconds =~ 7 days
+  completedTTL: 604800
+  failedTTL: 604800
+  invalidTTL: 3600
+  frequency: 60

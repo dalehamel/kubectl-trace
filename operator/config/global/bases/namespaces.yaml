@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    app: kubectl-trace-operator
+  name: system
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    app: kubectl-trace-operator
+  name: tracejobs

@@ -1,0 +1,10 @@
+domain: iovisor.org
+repo: github.com/iovisor/kubectl-trace/operator
+resources:
+- group: trace
+  kind: TraceJob
+  version: v1
+- group: trace
+  kind: TraceJobGC
+  version: v1alpha1
+version: "2"
